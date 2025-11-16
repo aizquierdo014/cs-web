@@ -7,6 +7,7 @@ import serverURL from 'cs16-client/dlls/cs_emscripten_wasm32.so?url'
 import gl4esURL from 'xash3d-fwgs/libref_webgl2.wasm?url'
 import extrasURL from 'cs16-client/extras.pk3?url'
 import {Xash3DWebRTC} from "./webrtc";
+import './custom-rcon-panel/cs-admin-overlay';
 
 const touchControls = document.getElementById('touchControls') as HTMLInputElement
 touchControls.addEventListener('change', () => {
@@ -70,6 +71,9 @@ async function main() {
         },
     });
 
+    // AIZ inyecto panel html para comandos rcon 
+    ;(window as any).xash = x;
+
     const [zip, extras] = await Promise.all([
         (async () => {
             const res = await fetchWithProgress('valve.zip')
@@ -102,7 +106,7 @@ async function main() {
 
     const username = await usernamePromise
     x.main()
-    x.Cmd_ExecuteString('_vgui_menus 0')
+    x.Cmd_ExecuteString('_vgui_menus 1')
     if (touchControls.checked) {
         x.Cmd_ExecuteString('touch_enable 1')
     }

@@ -11,10 +11,10 @@ services:
       PORT: 27018
       IP: 217.154.183.63
     volumes:
-      - "../../../common/valve.zip:/xashds/public/valve.zip"
-      - "../../../common/bots/liblist.gam:/xashds/cstrike/liblist.gam"
-      - "../../../common/bots/yapb:/xashds/cstrike/addons/yapb"
-      - "../../../common/maps:/xashds/cstrike/maps"
+      - "../../../game-data/valve.zip:/xashds/public/valve.zip"
+      - "../../../game-data/bots/liblist.gam:/xashds/cstrike/liblist.gam"
+      - "../../../game-data/bots/yapb:/xashds/cstrike/addons/yapb"
+      - "../../../game-data/maps:/xashds/cstrike/maps"
     ports:
       - "27016:27016"        # HTTP/web client (Caddy hará proxy aquí)
       - "27018:27018/udp"    # juego (UDP)
