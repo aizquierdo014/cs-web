@@ -1,19 +1,37 @@
 services:
-  xash3d:
-    image: yohimik/cs-web-server:latest
+  cs-web-server:
     build:
-      context: ../../
+      context: ../..
       dockerfile: ./docker/cs-web-server/Dockerfile
-      tags:
-        - yohimik/cs-web-server:latest
-        - yohimik/cs-web-server:${TAG}
-    restart: always
+    image: cs-web-server-local
+    command: ["+rcon_password 1234", "+map fy_pool_day", "+maxplayers 6" ]
+    restart: unless-stopped
     platform: linux/386
     environment:
       PORT: 27018
-      IP: 192.168.50.123
+      IP: 217.154.183.63
     volumes:
-      - "./valve.zip:/xashds/public/valve.zip"
+      - "../../../common/valve.zip:/xashds/public/valve.zip"
+      - "../../../common/bots/liblist.gam:/xashds/cstrike/liblist.gam"
+      - "../../../common/bots/yapb:/xashds/cstrike/addons/yapb"
+      - "../../../common/maps:/xashds/cstrike/maps"
     ports:
-      - "27016:27016"
-      - "27018:27018"
+      - "27016:27016"        # HTTP/web client (Caddy hará proxy aquí)
+      - "27018:27018/udp"    # juego (UDP)
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - cs-web-server
+
+volumes:
+  caddy_data:
+  caddy_config:

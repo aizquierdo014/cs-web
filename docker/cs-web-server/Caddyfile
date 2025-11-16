@@ -1,0 +1,27 @@
+{
+  #email admin@komandocs.beer
+}
+
+komandocs.beer {
+  encode zstd gzip
+
+  # ----------- RUTA /admin -----------
+  @admin path /admin*
+
+  basicauth @admin {
+    admin $2a$14$utESMs8mGzatG5fOVuzrtu5RSAgOnXx.hEEt9JEAHVkPqI7OsKHfi
+  }
+
+  handle @admin {
+    reverse_proxy cs-rcon-admin:3000
+  }
+
+  # ----------- RESTO DEL SITIO -----------
+  handle {
+    reverse_proxy cs-web-server:27016
+  }
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  }
+}
