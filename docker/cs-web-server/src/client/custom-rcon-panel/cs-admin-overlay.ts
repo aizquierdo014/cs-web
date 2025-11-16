@@ -1,4 +1,29 @@
 (function () {
+  type MapInfo = {
+    name: string;
+    label: string;
+    imageUrl: string;
+  };
+
+  // Lista de mapas para el carrusel
+  const MAPS: MapInfo[] = [
+    {
+      name: "fy_pool_day",
+      label: "fy_pool_day",
+      imageUrl: "/map-previews/fy_pool_day.jpg",
+    },
+    {
+      name: "de_dust2",
+      label: "de_dust2",
+      imageUrl: "/map-previews/de_dust2.jpg",
+    },
+    {
+      name: "de_inferno",
+      label: "de_inferno",
+      imageUrl: "/map-previews/de_inferno.jpg",
+    },
+  ];
+
   function waitForEngine(retries: number) {
     const anyWindow = window as any;
     if (anyWindow.xash) {
@@ -14,9 +39,31 @@
 
     const style = document.createElement("style");
     style.textContent = `
+      #csAdminToggle {
+        position: fixed;
+        top: 6px;
+        right: 6px;
+        z-index: 999998;
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        font-size: 13px;
+        border-radius: 9999px;
+        border: none;
+        cursor: pointer;
+        background: #111827ee;
+        color: #e5e7eb;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #csAdminToggle:hover {
+        background: #1f2937;
+      }
       #csAdminPanel {
         position: fixed;
-        top: 10px;
+        top: 32px;
         right: 10px;
         background: #111827dd;
         padding: 14px;
@@ -26,10 +73,17 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         width: 260px;
         font-size: 13px;
+        display: none; /* empieza oculto */
       }
-      #csAdminPanel h4 {
-        margin: 0 0 6px 0;
+      #csAdminPanelHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      #csAdminPanelHeaderTitle {
         font-size: 14px;
+        font-weight: 600;
       }
       #csAdminPanel button {
         width: 100%;
@@ -44,20 +98,6 @@
       #csAdminPanel button:hover {
         background: #374151;
       }
-      #csAdminPanel input {
-        width: 100%;
-        margin-top: 4px;
-        padding: 4px 6px;
-        border-radius: 6px;
-        border: 1px solid #4b5563;
-        background: #020617;
-        color: #e5e7eb;
-      }
-      #csAdminPanel small {
-        display: block;
-        margin-top: 4px;
-        opacity: 0.7;
-      }
       #csAdminPanel .cs-admin-section {
         margin-top: 6px;
       }
@@ -67,37 +107,65 @@
         padding: 4px;
         font-size: 12px;
       }
+      #csAdminMapCarousel {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+      }
+      #csAdminMapCarousel button {
+        width: 32px;
+        padding: 4px;
+        font-size: 16px;
+      }
+      #csAdminMapCard {
+        flex: 1;
+        background: #020617;
+        border-radius: 8px;
+        padding: 6px;
+        border: 1px solid #4b5563;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      #csAdminMapImageWrapper {
+        width: 100%;
+        height: 80px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #030712;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        color: #9ca3af;
+      }
+      #csAdminMapImageWrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      #csAdminMapName {
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+      }
     `;
     document.head.appendChild(style);
+
+    // Botón mini: solo un engranaje
+    const toggle = document.createElement("button");
+    toggle.id = "csAdminToggle";
+    toggle.textContent = "⚙";
+    document.body.appendChild(toggle);
 
     const panel = document.createElement("div");
     panel.id = "csAdminPanel";
     panel.innerHTML = `
-      <h4>Panel Admin CS</h4>
-
-      <div class="cs-admin-section">
-        <strong>Test</strong>
-        <button id="csAdminSayTest">say test (sin rcon)</button>
-      </div>
-
-      <div class="cs-admin-section">
-        <strong>Mapas (via rcon)</strong>
-        <button data-cmd="changelevel fy_pool_day">fy_pool_day</button>
-        <button data-cmd="changelevel de_dust2">de_dust2</button>
-        <button data-cmd="changelevel de_inferno">de_inferno</button>
-      </div>
-
-      <div class="cs-admin-section">
-        <strong>Bots (via rcon)</strong>
-        <button data-cmd="bot_add">Añadir bot</button>
-        <button data-cmd="bot_kick">Kick bot</button>
-        <button data-cmd="bot_kill">Matar bots</button>
-      </div>
-
-      <div class="cs-admin-section">
-        <strong>Servidor (via rcon)</strong>
-        <button data-cmd="status">Status</button>
-        <button data-cmd="sv_restart 1">Restart (1s)</button>
+      <div id="csAdminPanelHeader">
+        <span id="csAdminPanelHeaderTitle">Panel Admin CS</span>
       </div>
 
       <div class="cs-admin-section" id="csAdminPwdSection">
@@ -121,17 +189,56 @@
           <button type="button" id="csAdminPwdClear">Borrar</button>
           <button type="button" id="csAdminPwdSend">Enviar</button>
         </div>
-        <small>Pulsa números, luego "Enviar". Se manda como <code>rcon_password &lt;clave&gt;</code></small>
       </div>
 
       <div class="cs-admin-section">
-        <strong>Comando libre (via rcon)</strong>
-        <input id="csAdminCustomCmd" placeholder="ej: say hola a todos">
-        <button id="csAdminSendCustom">Enviar</button>
-        <small>Se envía como <code>rcon &lt;comando&gt;</code></small>
+        <strong>Mapas (via rcon)</strong>
+        <div id="csAdminMapCarousel">
+          <button type="button" id="csAdminMapPrev">‹</button>
+          <div id="csAdminMapCard">
+            <div id="csAdminMapImageWrapper">
+              <span>Sin preview</span>
+            </div>
+            <div id="csAdminMapName">-</div>
+          </div>
+          <button type="button" id="csAdminMapNext">›</button>
+        </div>
+      </div>
+
+      <div class="cs-admin-section">
+        <strong>Bots (via rcon)</strong>
+        <button data-cmd="bot_add">Añadir bot</button>
+        <button data-cmd="bot_kick">Kick bot</button>
+        <button data-cmd="bot_kill">Matar bots</button>
+      </div>
+
+      <div class="cs-admin-section">
+        <strong>Servidor (via rcon)</strong>
+        <button data-cmd="sv_restart 1">Restart (1s)</button>
+      </div>
+
+      <div class="cs-admin-section">
+        <strong>Cliente</strong>
+        <button id="csAdminGuiToggle" data-state="on">GUI: ON</button>
       </div>
     `;
     document.body.appendChild(panel);
+
+    function showPanel() {
+      panel.style.display = "block";
+    }
+
+    function hidePanel() {
+      panel.style.display = "none";
+    }
+
+    toggle.addEventListener("click", () => {
+      if (panel.style.display === "none" || !panel.style.display) {
+        showPanel();
+      } else {
+        hidePanel();
+      }
+    });
 
     function execRaw(cmd: string) {
       console.log("[CS-ADMIN] Exec RAW:", cmd);
@@ -146,14 +253,6 @@
 
     function execRcon(cmd: string) {
       execRaw("rcon " + cmd);
-    }
-
-    // Test sin rcon: debería escribir en el chat del juego
-    const sayTestBtn = panel.querySelector("#csAdminSayTest") as HTMLButtonElement | null;
-    if (sayTestBtn) {
-      sayTestBtn.addEventListener("click", () => {
-        execRaw('say [overlay test] hola desde el panel');
-      });
     }
 
     // ---- Bloque PASSWORD ----
@@ -199,24 +298,90 @@
 
     updatePwdDisplay();
 
-    // ---- Botones predefinidos via rcon ----
+    // ---- Carrusel de mapas ----
+    let currentMapIndex = 0;
+    const mapPrev = panel.querySelector("#csAdminMapPrev") as HTMLButtonElement | null;
+    const mapNext = panel.querySelector("#csAdminMapNext") as HTMLButtonElement | null;
+    const mapCard = panel.querySelector("#csAdminMapCard") as HTMLDivElement | null;
+    const mapImageWrapper = panel.querySelector("#csAdminMapImageWrapper") as HTMLDivElement | null;
+    const mapName = panel.querySelector("#csAdminMapName") as HTMLDivElement | null;
+
+    function renderCurrentMap() {
+      if (!mapImageWrapper || !mapName) return;
+      const map = MAPS[currentMapIndex];
+      mapName.textContent = map.label;
+
+      // limpiar wrapper
+      mapImageWrapper.innerHTML = "";
+
+      if (map.imageUrl) {
+        const img = document.createElement("img");
+        img.src = map.imageUrl;
+        img.alt = map.label;
+        img.onerror = () => {
+          mapImageWrapper.innerHTML = "<span>Sin preview</span>";
+        };
+        mapImageWrapper.appendChild(img);
+      } else {
+        mapImageWrapper.innerHTML = "<span>Sin preview</span>";
+      }
+    }
+
+    if (MAPS.length > 0) {
+      renderCurrentMap();
+    }
+
+    if (mapPrev) {
+      mapPrev.addEventListener("click", () => {
+        if (MAPS.length === 0) return;
+        currentMapIndex = (currentMapIndex - 1 + MAPS.length) % MAPS.length;
+        renderCurrentMap();
+      });
+    }
+
+    if (mapNext) {
+      mapNext.addEventListener("click", () => {
+        if (MAPS.length === 0) return;
+        currentMapIndex = (currentMapIndex + 1) % MAPS.length;
+        renderCurrentMap();
+      });
+    }
+
+    if (mapCard) {
+      mapCard.addEventListener("click", () => {
+        if (MAPS.length === 0) return;
+        const map = MAPS[currentMapIndex];
+        execRcon(`changelevel ${map.name}`);
+      });
+    }
+
+    // ---- Botones Bots via rcon ----
     panel.querySelectorAll("button[data-cmd]").forEach((btn) => {
+      // los de mapas los gestionamos arriba, así que filtramos:
+      const base = (btn as HTMLButtonElement).getAttribute("data-cmd");
+      if (!base || base.startsWith("changelevel")) return;
+
       btn.addEventListener("click", () => {
-        const base = (btn as HTMLButtonElement).getAttribute("data-cmd");
-        if (!base) return;
-        execRcon(base);
+        const cmd = (btn as HTMLButtonElement).getAttribute("data-cmd");
+        if (!cmd) return;
+        execRcon(cmd);
       });
     });
 
-    // ---- Comando libre via rcon ----
-    const input = panel.querySelector("#csAdminCustomCmd") as HTMLInputElement | null;
-    const sendBtn = panel.querySelector("#csAdminSendCustom") as HTMLButtonElement | null;
-    if (input && sendBtn) {
-      sendBtn.addEventListener("click", () => {
-        const val = (input.value || "").trim();
-        if (!val) return;
-        execRcon(val);
-        input.value = "";
+    // ---- Cliente: GUI ON/OFF (sin rcon) ----
+    const guiToggle = panel.querySelector("#csAdminGuiToggle") as HTMLButtonElement | null;
+    if (guiToggle) {
+      guiToggle.addEventListener("click", () => {
+        const current = guiToggle.getAttribute("data-state") || "on";
+        if (current === "on") {
+          execRaw('setinfo "_vgui_menus" "0"');
+          guiToggle.setAttribute("data-state", "off");
+          guiToggle.textContent = "GUI: OFF";
+        } else {
+          execRaw('setinfo "_vgui_menus" "1"');
+          guiToggle.setAttribute("data-state", "on");
+          guiToggle.textContent = "GUI: ON";
+        }
       });
     }
   }
