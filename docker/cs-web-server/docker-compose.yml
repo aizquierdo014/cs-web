@@ -15,6 +15,7 @@ services:
       - "../../../game-data/bots/liblist.gam:/xashds/cstrike/liblist.gam"
       - "../../../game-data/bots/yapb:/xashds/cstrike/addons/yapb"
       - "../../../game-data/maps:/xashds/cstrike/maps"
+      - "../../../game-data/map-previews:/xashds/public/map-previews:ro"
     ports:
       - "27016:27016"        # HTTP/web client (Caddy hará proxy aquí)
       - "27018:27018/udp"    # juego (UDP)
