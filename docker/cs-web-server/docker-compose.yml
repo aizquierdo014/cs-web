@@ -4,7 +4,7 @@ services:
       context: ../..
       dockerfile: ./docker/cs-web-server/Dockerfile
     image: cs-web-server-local
-    command: ["+rcon_password 1234", "+map fy_pool_day", "+maxplayers 6" ]
+    command: ["+rcon_password 1234", "+map fy_pool_day", "+maxplayers 14" ]
     restart: unless-stopped
     platform: linux/386
     environment:

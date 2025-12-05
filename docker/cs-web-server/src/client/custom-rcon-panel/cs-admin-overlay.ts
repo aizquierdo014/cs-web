@@ -5,23 +5,34 @@
     imageUrl: string;
   };
 
-  // Lista de mapas para el carrusel
+  // Lista de mapas para el carrusel (vía RCON)
   const MAPS: MapInfo[] = [
-    {
-      name: "fy_pool_day",
-      label: "fy_pool_day",
-      imageUrl: "/map-previews/fy_pool_day.jpg",
-    },
-    {
-      name: "de_dust2",
-      label: "de_dust2",
-      imageUrl: "/map-previews/de_dust2.jpg",
-    },
-    {
-      name: "de_inferno",
-      label: "de_inferno",
-      imageUrl: "/map-previews/de_inferno.jpg",
-    },
+    { name: "as_oilrig",    label: "as_oilrig",    imageUrl: "/map-previews/as_oilrig.jpg" },
+    { name: "cs_747",       label: "cs_747",       imageUrl: "/map-previews/cs_747.jpg" },
+    { name: "cs_assault",   label: "cs_assault",   imageUrl: "/map-previews/cs_assault.jpg" },
+    { name: "cs_backalley", label: "cs_backalley", imageUrl: "/map-previews/cs_backalley.jpg" },
+    { name: "cs_estate",    label: "cs_estate",    imageUrl: "/map-previews/cs_estate.jpg" },
+    { name: "cs_havana",    label: "cs_havana",    imageUrl: "/map-previews/cs_havana.jpg" },
+    { name: "cs_italy",     label: "cs_italy",     imageUrl: "/map-previews/cs_italy.jpg" },
+    { name: "cs_militia",   label: "cs_militia",   imageUrl: "/map-previews/cs_militia.jpg" },
+    { name: "cs_office",    label: "cs_office",    imageUrl: "/map-previews/cs_office.jpg" },
+    { name: "cs_siege",     label: "cs_siege",     imageUrl: "/map-previews/cs_siege.jpg" },
+    { name: "de_airstrip",  label: "de_airstrip",  imageUrl: "/map-previews/de_airstrip.jpg" },
+    { name: "de_aztec",     label: "de_aztec",     imageUrl: "/map-previews/de_aztec.jpg" },
+    { name: "de_cbble",     label: "de_cbble",     imageUrl: "/map-previews/de_cbble.jpg" },
+    { name: "de_chateau",   label: "de_chateau",   imageUrl: "/map-previews/de_chateau.jpg" },
+    { name: "de_dust",      label: "de_dust",      imageUrl: "/map-previews/de_dust.jpg" },
+    { name: "de_dust2",     label: "de_dust2",     imageUrl: "/map-previews/de_dust2.jpg" },
+    { name: "de_inferno",   label: "de_inferno",   imageUrl: "/map-previews/de_inferno.jpg" },
+    { name: "de_nuke",      label: "de_nuke",      imageUrl: "/map-previews/de_nuke.jpg" },
+    { name: "de_piranesi",  label: "de_piranesi",  imageUrl: "/map-previews/de_piranesi.jpg" },
+    { name: "de_prodigy",   label: "de_prodigy",   imageUrl: "/map-previews/de_prodigy.jpg" },
+    { name: "de_storm",     label: "de_storm",     imageUrl: "/map-previews/de_storm.jpg" },
+    { name: "de_survivor",  label: "de_survivor",  imageUrl: "/map-previews/de_survivor.jpg" },
+    { name: "de_torn",      label: "de_torn",      imageUrl: "/map-previews/de_torn.jpg" },
+    { name: "de_train",     label: "de_train",     imageUrl: "/map-previews/de_train.jpg" },
+    { name: "de_vertigo",   label: "de_vertigo",   imageUrl: "/map-previews/de_vertigo.jpg" },
+    { name: "fy_pool_day",  label: "fy_pool_day",  imageUrl: "/map-previews/fy_pool_day.jpg" },
   ];
 
   function waitForEngine(retries: number) {
@@ -101,12 +112,52 @@
       #csAdminPanel .cs-admin-section {
         margin-top: 6px;
       }
-      #csAdminPanel .csAdminPwdDigit {
+      #csAdminPanel .cs-admin-subtitle {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 4px;
+        margin-bottom: 2px;
+      }
+      #csAdminPanel .cs-admin-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      #csAdminPanel .cs-admin-row label {
+        font-size: 12px;
+        min-width: 40px;
+      }
+      #csAdminPanel select {
+        flex: 1;
+        padding: 2px 4px;
+        border-radius: 4px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 12px;
+      }
+      #csAdminPanel .cs-admin-section .csAdminPwdDigit {
         width: calc(25% - 3px);
         margin-top: 4px;
         padding: 4px;
         font-size: 12px;
       }
+
+      /* ⛔ Override del img global SÓLO dentro del panel */
+      #csAdminPanel img {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        animation: none !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        width: 100%;
+        height: 100%;
+        display: block;
+        z-index: auto !important;
+      }
+
       #csAdminMapCarousel {
         display: flex;
         align-items: center;
@@ -142,10 +193,7 @@
         color: #9ca3af;
       }
       #csAdminMapImageWrapper img {
-        width: 100%;
-        height: 100%;
         object-fit: cover;
-        display: block;
       }
       #csAdminMapName {
         font-size: 12px;
@@ -155,7 +203,7 @@
     `;
     document.head.appendChild(style);
 
-    // Botón mini: solo un engranaje
+    // Botón mini: sólo engranaje
     const toggle = document.createElement("button");
     toggle.id = "csAdminToggle";
     toggle.textContent = "⚙";
@@ -206,10 +254,46 @@
       </div>
 
       <div class="cs-admin-section">
-        <strong>Bots (via rcon)</strong>
-        <button data-cmd="bot_add">Añadir bot</button>
-        <button data-cmd="bot_kick">Kick bot</button>
-        <button data-cmd="bot_kill">Matar bots</button>
+        <strong>Bots (via rcon / YapB)</strong>
+
+        <div class="cs-admin-subtitle">Añadir bot</div>
+        <div class="cs-admin-row">
+          <label for="csBotDiff">Dif.</label>
+          <select id="csBotDiff">
+            <option value="0">0 (fácil)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4 (god)</option>
+          </select>
+        </div>
+        <div class="cs-admin-row">
+          <label for="csBotPers">Pers.</label>
+          <select id="csBotPers">
+            <option value="0">0 normal</option>
+            <option value="1">1 rusher</option>
+            <option value="2">2 careful</option>
+          </select>
+        </div>
+        <div class="cs-admin-row">
+          <label for="csBotTeam">Equipo</label>
+          <select id="csBotTeam">
+            <option value="0">0 random</option>
+            <option value="1">1 T</option>
+            <option value="2">2 CT</option>
+          </select>
+        </div>
+        <button type="button" id="csBotAddBtn">Añadir bot</button>
+
+        <div class="cs-admin-subtitle" style="margin-top:8px;">Kick</div>
+        <button data-cmd="yb kick t">Kick T</button>
+        <button data-cmd="yb kick ct">Kick CT</button>
+        <button data-cmd="yb kickall">Kick All</button>
+
+        <div class="cs-admin-subtitle" style="margin-top:8px;">Kill</div>
+        <button data-cmd="yb kill t">Kill T</button>
+        <button data-cmd="yb kill ct">Kill CT</button>
+        <button data-cmd="yb kill">Kill All</button>
       </div>
 
       <div class="cs-admin-section">
@@ -255,7 +339,7 @@
       execRaw("rcon " + cmd);
     }
 
-    // ---- Bloque PASSWORD ----
+    // ---- Password RCON ----
     let passwordBuffer = "";
     const pwdSection = panel.querySelector("#csAdminPwdSection") as HTMLDivElement | null;
     const pwdDisplay = panel.querySelector("#csAdminPwdDisplay") as HTMLDivElement | null;
@@ -306,24 +390,34 @@
     const mapImageWrapper = panel.querySelector("#csAdminMapImageWrapper") as HTMLDivElement | null;
     const mapName = panel.querySelector("#csAdminMapName") as HTMLDivElement | null;
 
+    function clearNodeChildren(node: HTMLElement) {
+      while (node.firstChild) {
+        node.removeChild(node.firstChild);
+      }
+    }
+
     function renderCurrentMap() {
       if (!mapImageWrapper || !mapName) return;
       const map = MAPS[currentMapIndex];
       mapName.textContent = map.label;
 
-      // limpiar wrapper
-      mapImageWrapper.innerHTML = "";
+      clearNodeChildren(mapImageWrapper);
 
       if (map.imageUrl) {
         const img = document.createElement("img");
         img.src = map.imageUrl;
         img.alt = map.label;
         img.onerror = () => {
-          mapImageWrapper.innerHTML = "<span>Sin preview</span>";
+          clearNodeChildren(mapImageWrapper);
+          const span = document.createElement("span");
+          span.textContent = "Sin preview";
+          mapImageWrapper.appendChild(span);
         };
         mapImageWrapper.appendChild(img);
       } else {
-        mapImageWrapper.innerHTML = "<span>Sin preview</span>";
+        const span = document.createElement("span");
+        span.textContent = "Sin preview";
+        mapImageWrapper.appendChild(span);
       }
     }
 
@@ -355,18 +449,35 @@
       });
     }
 
-    // ---- Botones Bots via rcon ----
+    // ---- Botones con data-cmd (yb kick/kill, restart, etc.) ----
     panel.querySelectorAll("button[data-cmd]").forEach((btn) => {
-      // los de mapas los gestionamos arriba, así que filtramos:
-      const base = (btn as HTMLButtonElement).getAttribute("data-cmd");
-      if (!base || base.startsWith("changelevel")) return;
-
+      const cmd = (btn as HTMLButtonElement).getAttribute("data-cmd");
+      if (!cmd) return;
       btn.addEventListener("click", () => {
-        const cmd = (btn as HTMLButtonElement).getAttribute("data-cmd");
-        if (!cmd) return;
+        if (cmd.startsWith("changelevel")) {
+          // El carrusel ya gestiona los changelevel
+          return;
+        }
         execRcon(cmd);
       });
     });
+
+    // ---- Añadir bot (YapB) ----
+    const botDiff = panel.querySelector("#csBotDiff") as HTMLSelectElement | null;
+    const botPers = panel.querySelector("#csBotPers") as HTMLSelectElement | null;
+    const botTeam = panel.querySelector("#csBotTeam") as HTMLSelectElement | null;
+    const botAddBtn = panel.querySelector("#csBotAddBtn") as HTMLButtonElement | null;
+
+    if (botDiff && botPers && botTeam && botAddBtn) {
+      botAddBtn.addEventListener("click", () => {
+        const diff = botDiff.value;
+        const pers = botPers.value;
+        const team = botTeam.value;
+        const cmd = `yb add ${diff} ${pers} ${team}`;
+        console.log("[CS-ADMIN] Añadir bot:", cmd);
+        execRcon(cmd);
+      });
+    }
 
     // ---- Cliente: GUI ON/OFF (sin rcon) ----
     const guiToggle = panel.querySelector("#csAdminGuiToggle") as HTMLButtonElement | null;
