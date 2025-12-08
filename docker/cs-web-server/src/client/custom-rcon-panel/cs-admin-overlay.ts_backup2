@@ -1,5 +1,3 @@
-// src/client/custom-rcon-panel/cs-admin-overlay.ts
-
 (function () {
   type MapInfo = {
     name: string;
@@ -7,6 +5,7 @@
     imageUrl: string;
   };
 
+  // Lista de mapas
   const MAPS: MapInfo[] = [
     { name: "as_oilrig",    label: "as_oilrig",    imageUrl: "/map-previews/as_oilrig.jpg" },
     { name: "cs_747",       label: "cs_747",       imageUrl: "/map-previews/cs_747.jpg" },
@@ -53,13 +52,13 @@
     style.textContent = `
       #csAdminToggle {
         position: fixed;
-        top: 10px;
-        right: 10px;
+        top: 6px;
+        right: 6px;
         z-index: 999998;
-        width: 44px;
-        height: 44px;
+        width: 22px;
+        height: 22px;
         padding: 0;
-        font-size: 24px;
+        font-size: 13px;
         border-radius: 9999px;
         border: none;
         cursor: pointer;
@@ -86,15 +85,26 @@
         width: 260px;
         font-size: 13px;
         display: none;
-        max-height: 80vh;
+        
+        /* SCROLL añadido */
+        max-height: 80vh; 
         overflow-y: auto;
+        /* Scrollbar styling para webkit */
         scrollbar-width: thin;
         scrollbar-color: #4b5563 #111827;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       }
-      #csAdminPanel::-webkit-scrollbar { width: 6px; }
-      #csAdminPanel::-webkit-scrollbar-track { background: #111827; border-radius: 4px; }
-      #csAdminPanel::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 4px; }
+      /* Scrollbar para Chrome/Safari */
+      #csAdminPanel::-webkit-scrollbar {
+        width: 6px;
+      }
+      #csAdminPanel::-webkit-scrollbar-track {
+        background: #111827;
+        border-radius: 4px;
+      }
+      #csAdminPanel::-webkit-scrollbar-thumb {
+        background-color: #4b5563;
+        border-radius: 4px;
+      }
 
       #csAdminPanelHeader {
         display: flex;
@@ -106,24 +116,6 @@
         font-size: 14px;
         font-weight: 600;
       }
-      
-      /* Botón Cerrar X */
-      #csAdminCloseBtn {
-        background: transparent;
-        border: none;
-        color: #9ca3af;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 1;
-        padding: 0 4px;
-        margin: 0;
-        width: auto;
-      }
-      #csAdminCloseBtn:hover {
-        color: white;
-        background: transparent;
-      }
-
       #csAdminPanel button {
         width: 100%;
         margin-top: 4px;
@@ -134,8 +126,11 @@
         border-radius: 6px;
         cursor: pointer;
       }
-      #csAdminPanel button:hover { background: #374151; }
-
+      #csAdminPanel button:hover {
+        background: #374151;
+      }
+      
+      /* Grid Helper de 2 columnas */
       .cs-admin-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -152,7 +147,7 @@
         border-top: none;
         margin-top: 0;
       }
-
+      
       #csAdminPanel .cs-admin-subtitle {
         font-size: 11px;
         opacity: 0.7;
@@ -187,13 +182,17 @@
         padding: 4px;
         font-size: 12px;
       }
+      
+      /* Botones de volumen */
       #csAdminPanel .cs-admin-section .csAdminVolBtn {
         flex: 1;
         margin-top: 4px;
         padding: 4px;
         font-size: 11px;
-        min-width: 0;
+        min-width: 0; 
       }
+
+      /* Override img */
       #csAdminPanel img {
         position: static !important;
         top: auto !important;
@@ -242,7 +241,9 @@
         font-size: 11px;
         color: #9ca3af;
       }
-      #csAdminMapImageWrapper img { object-fit: cover; }
+      #csAdminMapImageWrapper img {
+        object-fit: cover;
+      }
       #csAdminMapName {
         font-size: 12px;
         font-weight: 500;
@@ -261,7 +262,6 @@
     panel.innerHTML = `
       <div id="csAdminPanelHeader">
         <span id="csAdminPanelHeaderTitle">Panel Admin CS</span>
-        <button id="csAdminCloseBtn" title="Cerrar">×</button>
       </div>
 
       <div class="cs-admin-section">
@@ -280,7 +280,7 @@
 
       <div class="cs-admin-section">
         <strong>Bots</strong>
-
+        
         <div class="cs-admin-row">
           <select id="csBotDiff" title="Dificultad">
             <option value="0">Dif: 0</option><option value="1">Dif: 1</option>
@@ -304,10 +304,10 @@
         <div class="cs-admin-grid-2">
             <button data-cmd="yb kick t">Kick T</button>
             <button data-cmd="yb kill t">Kill T</button>
-
+            
             <button data-cmd="yb kick ct">Kick CT</button>
             <button data-cmd="yb kill ct">Kill CT</button>
-
+            
             <button data-cmd="yb kickall">Kick All</button>
             <button data-cmd="yb kill">Kill All</button>
         </div>
@@ -331,9 +331,6 @@
             <button id="csAdminGuiToggle" data-state="on">GUI: ON</button>
             <button id="csAdminFastSwitchToggle" data-state="off">FastSw: OFF</button>
         </div>
-        
-        <button id="csAdminBindDuck" style="margin-top:6px;border:1px solid #60a5fa;color:#93c5fd;">Fix: Usar 'C' para Agacharse</button>
-        
         <button data-cmd="sv_restart 1">Reiniciar Ronda (1s)</button>
       </div>
 
@@ -362,8 +359,6 @@
     `;
     document.body.appendChild(panel);
 
-    const closeBtn = panel.querySelector("#csAdminCloseBtn") as HTMLButtonElement;
-
     function showPanel() {
       panel.style.display = "block";
     }
@@ -372,30 +367,12 @@
       panel.style.display = "none";
     }
 
-    // Toggle con el engranaje
-    toggle.addEventListener("click", (e) => {
-      e.stopPropagation();
+    toggle.addEventListener("click", () => {
       if (panel.style.display === "none" || !panel.style.display) {
         showPanel();
       } else {
         hidePanel();
       }
-    });
-
-    // Cerrar con la X
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => hidePanel());
-    }
-
-    // Cerrar al click fuera
-    document.addEventListener("click", (e) => {
-        if (panel.style.display === "block") {
-            const target = e.target as HTMLElement;
-            // Si el target no está dentro del panel y no es el toggle
-            if (!panel.contains(target) && target !== toggle) {
-                hidePanel();
-            }
-        }
     });
 
     function execRaw(cmd: string) {
@@ -413,29 +390,9 @@
       execRaw("rcon " + cmd);
     }
 
-    // ---- Lógica Botón Bind Duck (C) ----
-    const bindDuckBtn = panel.querySelector("#csAdminBindDuck") as HTMLButtonElement | null;
-    if (bindDuckBtn) {
-        bindDuckBtn.addEventListener("click", () => {
-            execRaw('bind "c" "+duck"');
-            const oldText = bindDuckBtn.textContent;
-            bindDuckBtn.textContent = "¡Listo!";
-            bindDuckBtn.style.background = "#059669"; 
-            bindDuckBtn.style.color = "#fff";
-            bindDuckBtn.style.borderColor = "#059669";
-            setTimeout(() => {
-                if (bindDuckBtn) {
-                    bindDuckBtn.textContent = oldText;
-                    bindDuckBtn.style.background = "#1f2937";
-                    bindDuckBtn.style.color = "#93c5fd";
-                    bindDuckBtn.style.borderColor = "#60a5fa";
-                }
-            }, 2000);
-        });
-    }
-
     // ---- Password RCON ----
     let passwordBuffer = "";
+    const pwdSection = panel.querySelector("#csAdminPwdSection") as HTMLDivElement | null;
     const pwdDisplay = panel.querySelector("#csAdminPwdDisplay") as HTMLDivElement | null;
     const pwdDigits = panel.querySelectorAll(".csAdminPwdDigit") as NodeListOf<HTMLButtonElement>;
     const pwdClear = panel.querySelector("#csAdminPwdClear") as HTMLButtonElement | null;
@@ -468,6 +425,8 @@
         if (!val) return;
         execRaw(`rcon_password ${val}`);
         console.log("[CS-ADMIN] rcon_password enviado:", val);
+        // Opcional: ocultar panel o sección tras enviar
+        // if (pwdSection) pwdSection.style.display = "none";
       });
     }
 
@@ -540,7 +499,7 @@
       });
     }
 
-    // ---- Botones genéricos ----
+    // ---- Botones genéricos con data-cmd ----
     panel.querySelectorAll("button[data-cmd]").forEach((btn) => {
       const cmd = (btn as HTMLButtonElement).getAttribute("data-cmd");
       if (!cmd) return;
@@ -591,7 +550,7 @@
         }
       });
     }
-
+    
     // ---- FAST SWITCH ON/OFF ----
     const fsToggle = panel.querySelector("#csAdminFastSwitchToggle") as HTMLButtonElement | null;
     if (fsToggle) {
@@ -607,6 +566,10 @@
           fsToggle.textContent = "FastSw: OFF";
         }
       });
+      // Inicializar en 1 (opcional, fuerza fastswitch al cargar panel)
+      // execRaw('hud_fastswitch 1');
+      // fsToggle.setAttribute("data-state", "on");
+      // fsToggle.textContent = "FastSw: ON";
     }
   }
 

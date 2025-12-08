@@ -8,6 +8,7 @@ import gl4esURL from 'xash3d-fwgs/libref_webgl2.wasm?url'
 import extrasURL from 'cs16-client/extras.pk3?url'
 import {Xash3DWebRTC} from "./webrtc";
 import './custom-rcon-panel/cs-admin-overlay';
+import './custom-rcon-panel/cs-info-overlay';
 
 const touchControls = document.getElementById('touchControls') as HTMLInputElement
 touchControls.addEventListener('change', () => {
