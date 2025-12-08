@@ -5,7 +5,7 @@
     imageUrl: string;
   };
 
-  // Lista de mapas
+  // Lista de mapas para el carrusel (vía RCON)
   const MAPS: MapInfo[] = [
     { name: "as_oilrig",    label: "as_oilrig",    imageUrl: "/map-previews/as_oilrig.jpg" },
     { name: "cs_747",       label: "cs_747",       imageUrl: "/map-previews/cs_747.jpg" },
@@ -84,28 +84,8 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         width: 260px;
         font-size: 13px;
-        display: none;
-        
-        /* SCROLL añadido */
-        max-height: 80vh; 
-        overflow-y: auto;
-        /* Scrollbar styling para webkit */
-        scrollbar-width: thin;
-        scrollbar-color: #4b5563 #111827;
+        display: none; /* empieza oculto */
       }
-      /* Scrollbar para Chrome/Safari */
-      #csAdminPanel::-webkit-scrollbar {
-        width: 6px;
-      }
-      #csAdminPanel::-webkit-scrollbar-track {
-        background: #111827;
-        border-radius: 4px;
-      }
-      #csAdminPanel::-webkit-scrollbar-thumb {
-        background-color: #4b5563;
-        border-radius: 4px;
-      }
-
       #csAdminPanelHeader {
         display: flex;
         align-items: center;
@@ -129,39 +109,19 @@
       #csAdminPanel button:hover {
         background: #374151;
       }
-      
-      /* Grid Helper de 2 columnas */
-      .cs-admin-grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        margin-top: 4px;
-      }
-
       #csAdminPanel .cs-admin-section {
-        margin-top: 8px;
-        padding-top: 4px;
-        border-top: 1px solid #374151;
-      }
-      #csAdminPanel .cs-admin-section:first-of-type {
-        border-top: none;
-        margin-top: 0;
-      }
-      
-      #csAdminPanel .cs-admin-subtitle {
-        font-size: 11px;
-        opacity: 0.7;
         margin-top: 6px;
+      }
+      #csAdminPanel .cs-admin-subtitle {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 4px;
         margin-bottom: 2px;
-        text-transform: uppercase;
-        font-weight: 600;
-        text-align: center;
       }
       #csAdminPanel .cs-admin-row {
         display: flex;
         align-items: center;
         gap: 4px;
-        margin-top: 4px;
       }
       #csAdminPanel .cs-admin-row label {
         font-size: 12px;
@@ -183,16 +143,16 @@
         font-size: 12px;
       }
       
-      /* Botones de volumen */
+      /* Estilos para botones de volumen */
       #csAdminPanel .cs-admin-section .csAdminVolBtn {
         flex: 1;
         margin-top: 4px;
         padding: 4px;
         font-size: 11px;
-        min-width: 0; 
+        min-width: 0; /* Evita desbordamiento */
       }
 
-      /* Override img */
+      /* ⛔ Override del img global SÓLO dentro del panel */
       #csAdminPanel img {
         position: static !important;
         top: auto !important;
@@ -231,7 +191,7 @@
       }
       #csAdminMapImageWrapper {
         width: 100%;
-        height: 60px;
+        height: 80px;
         border-radius: 6px;
         overflow: hidden;
         background: #030712;
@@ -252,6 +212,7 @@
     `;
     document.head.appendChild(style);
 
+    // Botón mini: sólo engranaje
     const toggle = document.createElement("button");
     toggle.id = "csAdminToggle";
     toggle.textContent = "⚙";
@@ -264,8 +225,31 @@
         <span id="csAdminPanelHeaderTitle">Panel Admin CS</span>
       </div>
 
+      <div class="cs-admin-section" id="csAdminPwdSection">
+        <strong>Password RCON</strong>
+        <div id="csAdminPwdDisplay" style="margin-top:4px;padding:4px 6px;border-radius:6px;background:#020617;border:1px solid #4b5563;font-family:monospace;">
+          (vacío)
+        </div>
+        <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">
+          <button type="button" class="csAdminPwdDigit" data-digit="1">1</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="2">2</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="3">3</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="4">4</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="5">5</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="6">6</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="7">7</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="8">8</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="9">9</button>
+          <button type="button" class="csAdminPwdDigit" data-digit="0">0</button>
+        </div>
+        <div style="margin-top:4px;display:flex;gap:4px;">
+          <button type="button" id="csAdminPwdClear">Borrar</button>
+          <button type="button" id="csAdminPwdSend">Enviar</button>
+        </div>
+      </div>
+
       <div class="cs-admin-section">
-        <strong>Mapas</strong>
+        <strong>Mapas (via rcon)</strong>
         <div id="csAdminMapCarousel">
           <button type="button" id="csAdminMapPrev">‹</button>
           <div id="csAdminMapCard">
@@ -279,38 +263,46 @@
       </div>
 
       <div class="cs-admin-section">
-        <strong>Bots</strong>
-        
-        <div class="cs-admin-row">
-          <select id="csBotDiff" title="Dificultad">
-            <option value="0">Dif: 0</option><option value="1">Dif: 1</option>
-            <option value="2">Dif: 2</option><option value="3">Dif: 3</option>
-            <option value="4">Dif: 4</option>
-          </select>
-          <select id="csBotTeam" title="Equipo">
-             <option value="0">Team: Rnd</option><option value="1">Team: T</option>
-             <option value="2">Team: CT</option>
-          </select>
-        </div>
-        <div class="cs-admin-row">
-           <select id="csBotPers" title="Personalidad">
-            <option value="0">Pers: Normal</option><option value="1">Pers: Rush</option>
-            <option value="2">Pers: Careful</option>
-          </select>
-          <button type="button" id="csBotAddBtn" style="margin-top:0;">+ Bot</button>
-        </div>
+        <strong>Bots (via rcon / YapB)</strong>
 
-        <div class="cs-admin-subtitle">Gestión Bots</div>
-        <div class="cs-admin-grid-2">
-            <button data-cmd="yb kick t">Kick T</button>
-            <button data-cmd="yb kill t">Kill T</button>
-            
-            <button data-cmd="yb kick ct">Kick CT</button>
-            <button data-cmd="yb kill ct">Kill CT</button>
-            
-            <button data-cmd="yb kickall">Kick All</button>
-            <button data-cmd="yb kill">Kill All</button>
+        <div class="cs-admin-subtitle">Añadir bot</div>
+        <div class="cs-admin-row">
+          <label for="csBotDiff">Dif.</label>
+          <select id="csBotDiff">
+            <option value="0">0 (fácil)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4 (god)</option>
+          </select>
         </div>
+        <div class="cs-admin-row">
+          <label for="csBotPers">Pers.</label>
+          <select id="csBotPers">
+            <option value="0">0 normal</option>
+            <option value="1">1 rusher</option>
+            <option value="2">2 careful</option>
+          </select>
+        </div>
+        <div class="cs-admin-row">
+          <label for="csBotTeam">Equipo</label>
+          <select id="csBotTeam">
+            <option value="0">0 random</option>
+            <option value="1">1 T</option>
+            <option value="2">2 CT</option>
+          </select>
+        </div>
+        <button type="button" id="csBotAddBtn">Añadir bot</button>
+
+        <div class="cs-admin-subtitle" style="margin-top:8px;">Kick</div>
+        <button data-cmd="yb kick t">Kick T</button>
+        <button data-cmd="yb kick ct">Kick CT</button>
+        <button data-cmd="yb kickall">Kick All</button>
+
+        <div class="cs-admin-subtitle" style="margin-top:8px;">Kill</div>
+        <button data-cmd="yb kill t">Kill T</button>
+        <button data-cmd="yb kill ct">Kill CT</button>
+        <button data-cmd="yb kill">Kill All</button>
       </div>
 
       <div class="cs-admin-section">
@@ -326,35 +318,13 @@
       </div>
 
       <div class="cs-admin-section">
-        <strong>Sistema</strong>
-        <div class="cs-admin-grid-2">
-            <button id="csAdminGuiToggle" data-state="on">GUI: ON</button>
-            <button id="csAdminFastSwitchToggle" data-state="off">FastSw: OFF</button>
-        </div>
-        <button data-cmd="sv_restart 1">Reiniciar Ronda (1s)</button>
+        <strong>Servidor (via rcon)</strong>
+        <button data-cmd="sv_restart 1">Restart (1s)</button>
       </div>
 
-      <div class="cs-admin-section" id="csAdminPwdSection">
-        <strong>Password RCON</strong>
-        <div id="csAdminPwdDisplay" style="margin-top:4px;padding:4px 6px;border-radius:6px;background:#020617;border:1px solid #4b5563;font-family:monospace;text-align:center;">
-          (vacío)
-        </div>
-        <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">
-          <button type="button" class="csAdminPwdDigit" data-digit="1">1</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="2">2</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="3">3</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="4">4</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="5">5</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="6">6</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="7">7</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="8">8</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="9">9</button>
-          <button type="button" class="csAdminPwdDigit" data-digit="0">0</button>
-        </div>
-        <div class="cs-admin-grid-2">
-          <button type="button" id="csAdminPwdClear">Borrar</button>
-          <button type="button" id="csAdminPwdSend">Enviar</button>
-        </div>
+      <div class="cs-admin-section">
+        <strong>Cliente</strong>
+        <button id="csAdminGuiToggle" data-state="on">GUI: ON</button>
       </div>
     `;
     document.body.appendChild(panel);
@@ -425,8 +395,9 @@
         if (!val) return;
         execRaw(`rcon_password ${val}`);
         console.log("[CS-ADMIN] rcon_password enviado:", val);
-        // Opcional: ocultar panel o sección tras enviar
-        // if (pwdSection) pwdSection.style.display = "none";
+        if (pwdSection) {
+          pwdSection.style.display = "none";
+        }
       });
     }
 
@@ -499,20 +470,25 @@
       });
     }
 
-    // ---- Botones genéricos con data-cmd ----
+    // ---- Botones con data-cmd (yb kick/kill, restart, etc.) ----
     panel.querySelectorAll("button[data-cmd]").forEach((btn) => {
       const cmd = (btn as HTMLButtonElement).getAttribute("data-cmd");
       if (!cmd) return;
       btn.addEventListener("click", () => {
+        if (cmd.startsWith("changelevel")) {
+          // El carrusel ya gestiona los changelevel
+          return;
+        }
         execRcon(cmd);
       });
     });
 
-    // ---- Volumen ----
+    // ---- Control de Volumen (Cliente) ----
     panel.querySelectorAll(".csAdminVolBtn").forEach((btn) => {
         btn.addEventListener("click", () => {
             const vol = (btn as HTMLButtonElement).getAttribute("data-vol");
             if (vol) {
+                // Usamos execRaw porque 'volume' es un comando de cliente local
                 execRaw(`volume ${vol}`);
             }
         });
@@ -530,11 +506,12 @@
         const pers = botPers.value;
         const team = botTeam.value;
         const cmd = `yb add ${diff} ${pers} ${team}`;
+        console.log("[CS-ADMIN] Añadir bot:", cmd);
         execRcon(cmd);
       });
     }
 
-    // ---- GUI ON/OFF ----
+    // ---- Cliente: GUI ON/OFF (sin rcon) ----
     const guiToggle = panel.querySelector("#csAdminGuiToggle") as HTMLButtonElement | null;
     if (guiToggle) {
       guiToggle.addEventListener("click", () => {
@@ -549,27 +526,6 @@
           guiToggle.textContent = "GUI: ON";
         }
       });
-    }
-    
-    // ---- FAST SWITCH ON/OFF ----
-    const fsToggle = panel.querySelector("#csAdminFastSwitchToggle") as HTMLButtonElement | null;
-    if (fsToggle) {
-      fsToggle.addEventListener("click", () => {
-        const current = fsToggle.getAttribute("data-state") || "off";
-        if (current === "off") {
-          execRaw('hud_fastswitch 1');
-          fsToggle.setAttribute("data-state", "on");
-          fsToggle.textContent = "FastSw: ON";
-        } else {
-          execRaw('hud_fastswitch 0');
-          fsToggle.setAttribute("data-state", "off");
-          fsToggle.textContent = "FastSw: OFF";
-        }
-      });
-      // Inicializar en 1 (opcional, fuerza fastswitch al cargar panel)
-      // execRaw('hud_fastswitch 1');
-      // fsToggle.setAttribute("data-state", "on");
-      // fsToggle.textContent = "FastSw: ON";
     }
   }
 
